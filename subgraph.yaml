@@ -1,0 +1,26 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: AddressProvider
+    network: kovan
+    source:
+      address: "0xA526311C39523F60b184709227875b5f34793bD4"
+      abi: AddressProvider
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AddressSet
+        - OwnershipTransferred
+      abis:
+        - name: AddressProvider
+          file: ./abis/AddressProvider.json
+      eventHandlers:
+        - event: AddressSet(indexed bytes32,indexed address)
+          handler: handleAddressSet
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/mapping.ts
