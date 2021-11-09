@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,19 +8,132 @@ dataSources:
     source:
       address: "0xA526311C39523F60b184709227875b5f34793bD4"
       abi: AddressProvider
+      startBlock: 20000000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - AddressSet
-        - OwnershipTransferred
+        - AccountFactory
       abis:
         - name: AddressProvider
-          file: ./abis/AddressProvider.json
+          file: ./abis/addressProvider.json
+      callHandlers:
+        - function: setAccountFactory(address)
+          handler: setAccountFactory
+        - function: setContractsRegister(address)
+          handler: setContractsRegister
+      file: ./src/addressProvider.ts
+###################################
+# CreditAccounts
+###################################
+  - kind: ethereum/contract
+    name: AccountFactory
+    network: kovan
+    source:
+      abi: AccountFactory
+      startBlock: 20000000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AccountFactory
+      abis:
+        - name: AccountFactory
+          file: ./abis/accountFactory.json
       eventHandlers:
-        - event: AddressSet(indexed bytes32,indexed address)
-          handler: handleAddressSet
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-      file: ./src/mapping.ts
+        - event: NewCreditAccount(indexed address)
+          handler: newCreditAccountContract
+      file: ./src/accountFactory.ts
+  - kind: ethereum/contract
+    name: CreditAccount
+    network: kovan
+    source:
+      abi: CreditAccount
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CreditAccount
+      abis:
+        - name: CreditAccount
+          file: ./abis/creditAccount.json
+      callHandlers:
+        - function: updateParameters(uint256,uint256)
+          handler: updateParameters
+      file: ./src/creditAccount.ts
+###################################
+# CreditRegister and pools
+###################################
+  - kind: ethereum/contract
+    name: ContractsRegister
+    network: kovan
+    source:
+      abi: ContractsRegister
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ContractsRegister
+      abis:
+        - name: ContractsRegister
+          file: ./abis/contractsRegister.json
+      eventHandlers:
+        - event: NewCreditManagerAdded(indexed address)
+          handler: newCreditManager
+        - event: NewPoolAdded(indexed address)
+          handler: newPool
+      file: ./src/contractsRegister.ts
+  - kind: ethereum/contract
+    name: PoolService
+    network: kovan
+    source:
+      abi: PoolService
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PoolService
+      abis:
+        - name: PoolService
+          file: ./abis/poolService.json
+      eventHandlers:
+        - event: AddLiquidity(indexed address,indexed address,uint256,uint256)
+          handler: addLiquidity
+        - event: RemoveLiquidity(indexed address,indexed address,uint256)
+          handler: removeLiquidity
+        - event: BorrowForbidden(indexed address)
+          handler: borrow
+        - event: Repay(indexed address,uint256,uint256,uint256)
+          handler: repay
+        - event: BorrowForbidden(indexed address)
+          handler: borrowForbidden
+        - event: NewExpectedLiquidityLimit(uint256)
+          handler: newExpectedLiqidityLimit
+      file: ./src/poolService.ts
+  - kind: ethereum/contract
+    name: CreditManager
+    network: kovan
+    source:
+      abi: CreditManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CreditManager
+      abis:
+        - name: CreditManager
+          file: ./abis/creditManager.json
+      eventHandlers:
+        - event: OpenCreditAccount(indexed address,indexed address,indexed address,uint256,uint256,uint256)
+          handler: openCreditAccount
+        - event: CloseCreditAccount(indexed address,indexed address,uint256)
+          handler: closeCreditAccount
+        - event: LiquidateCreditAccount(indexed address,indexed address,uint256)
+          handler: liquidateCreditAccount
+      file: ./src/creditManager.ts

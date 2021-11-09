@@ -1,6 +1,54 @@
-type ExampleEntity @entity {
+# CreditRegister and pools
+type ContractsRegister @entity {
   id: ID!
-  count: BigInt!
-  service: Bytes! # bytes32
-  newAddress: Bytes! # address
+  address: Bytes! # address
+}
+type Pool @entity {
+  id: ID!
+  expectedLiquidityLimit: BigInt
+  liquidity: BigInt
+  borrowForbidden: [Bytes!]
+  creditManagers: [CreditManager!] @derivedFrom(field: "pool")
+}
+type CreditManager @entity {
+  id: ID!
+  pool: Pool
+}
+
+
+# CreditAccounts
+type AccountFactory @entity {
+  id: ID!
+  address: Bytes! # address
+}
+
+type CreditAccountDetails @entity {
+  id: ID!
+  index: BigInt!
+}
+
+type CreditAccount @entity {
+  id: ID!
+  account: Bytes! # address
+  owner: Bytes! # address
+  takeBlock: BigInt
+  returnBlock: BigInt
+  cumulativeIndexAtOpen: BigInt
+  creditManager: CreditManager
+}
+
+type UserPoolAction @entity {
+  id: ID!
+  user: Bytes! 
+  pool: Pool!
+  Liquidity: BigInt
+}
+
+type CreditAccountAndManagerBorrow @entity {
+  id: ID!
+  creditAccount: CreditAccount!
+  creditManager: CreditManager!
+  borrowedAmount: BigInt
+  profit: BigInt 
+  loss: BigInt
 }
