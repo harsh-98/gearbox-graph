@@ -4,7 +4,8 @@ import {
     RemoveLiquidity,
     Borrow, Repay, 
     NewExpectedLiquidityLimit,
-    BorrowForbidden
+    BorrowForbidden,
+    NewCreditManagerConnected
 } from "../generated/templates/PoolService/PoolService"
 import {Pool, CreditManager,ERC20Token} from '../generated/schema'
 import { Bytes,log, Address } from '@graphprotocol/graph-ts'
@@ -20,6 +21,13 @@ function saveToken(addr: Address): void {
     t.symbol = erc20.symbol()
     t.decimal = erc20.decimals()
     t.save()
+}
+export function connectCreditManager(event: NewCreditManagerConnected): void {
+    let cm = CreditManager.load(event.params.creditManager.toHexString())!;
+    if(cm.pool === null) {
+        cm.pool = event.address.toHexString();
+        cm.save()
+    }
 }
 export function addLiquidity(event: AddLiquidity): void {
     let poolId = event.address.toHexString();
@@ -58,11 +66,11 @@ export function removeLiquidity(event: RemoveLiquidity): void {
 
 
 export function borrow(event: Borrow): void {
-    let cm = CreditManager.load(event.params.creditManager.toHexString())!;
-    if(cm.pool === null) {
-        cm.pool = event.address.toHexString();
-        cm.save()
-    }
+    // let cm = CreditManager.load(event.params.creditManager.toHexString())!;
+    // if(cm.pool === null) {
+    //     cm.pool = event.address.toHexString();
+    //     cm.save()
+    // }
 }
 
 export function repay(event: Repay): void {

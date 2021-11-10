@@ -62,15 +62,22 @@ templates:
       abis:
         - name: PoolService
           file: ./abis/poolService.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+          # the reason that i have to even include the abi is because 
+          # i am using bind to get the current state. Else it worked 
+          #gd and even passed all the validity checks.
       eventHandlers:
         - event: AddLiquidity(indexed address,indexed address,uint256,uint256)
           handler: addLiquidity
         - event: RemoveLiquidity(indexed address,indexed address,uint256)
           handler: removeLiquidity
-        # - event: BorrowForbidden(indexed address)
+        # - event: Borrow(indexed address,uint256,uint256)
         #   handler: borrow
         # - event: Repay(indexed address,uint256,uint256,uint256)
         #   handler: repay
+        - event: NewCreditManagerConnected(indexed address)
+          handler: connectCreditManager
         - event: BorrowForbidden(indexed address)
           handler: borrowForbidden
         - event: NewExpectedLiquidityLimit(uint256)
@@ -96,24 +103,24 @@ templates:
         - event: NewPoolAdded(indexed address)
           handler: newPool
       file: ./src/contractsRegister.ts
-  - kind: ethereum/contract
-    name: ERC20
-    network: kovan
-    source:
-      abi: ERC20
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - ERC20
-      abis:
-        - name: ERC20
-          file: ./abis/ERC20.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: newPool
-      file: ./src/ERC20.ts
+  # - kind: ethereum/contract
+  #   name: ERC20
+  #   network: kovan
+  #   source:
+  #     abi: ERC20
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.5
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - ERC20
+  #     abis:
+  #       - name: ERC20
+  #         file: ./abis/ERC20.json
+  #     eventHandlers:
+  #       - event: Transfer(indexed address,indexed address,uint256)
+  #         handler: newPool
+  #     file: ./src/erc20.ts
   - kind: ethereum/contract
     name: AccountFactory
     network: kovan

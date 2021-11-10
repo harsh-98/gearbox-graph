@@ -66,6 +66,7 @@ type CreditAccount @entity {
   liquidator: Bytes
 }
 
+#### Not Used ####
 #type Liquidate @entity {
   #id: ID!
   #account: CreditAccount!
