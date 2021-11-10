@@ -2,22 +2,18 @@ import { BigInt } from "@graphprotocol/graph-ts"
 import {
   NewCreditManagerAdded,
   NewPoolAdded
-} from "../generated/ContractsRegister/ContractsRegister"
-import {CreditManager, Pool} from '../generated/schema'
-import { log } from '@graphprotocol/graph-ts'
-
-import { Address } from '@graphprotocol/graph-ts'
+} from "../generated/templates/ContractsRegister/ContractsRegister"
+import {PoolService} from "../generated/templates"
+import {CreditManager} from "../generated/templates"
 
 
 export function newPool(event: NewPoolAdded): void {
-    let id = event.params.pool.toString();
-    let cm = new Pool(id);
-    cm.save()
+    PoolService.create(event.params.pool); 
+    // https://thegraph.com/docs/developer/create-subgraph-hosted#instantiating-a-data-source-template
+    // only indexes from the block in which create is called
 }
 
 export function newCreditManager(event: NewCreditManagerAdded): void {
-    let id = event.params.creditManager.toString();
-    let cm = new CreditManager(id);
-    cm.save()
+    CreditManager.create(event.params.creditManager);
 }
 

@@ -8,13 +8,13 @@ dataSources:
     source:
       address: "0xA526311C39523F60b184709227875b5f34793bD4"
       abi: AddressProvider
-      startBlock: 20000000
+      startBlock: 27774763
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - AccountFactory
+        - AddressProvider
       abis:
         - name: AddressProvider
           file: ./abis/addressProvider.json
@@ -24,49 +24,58 @@ dataSources:
         - function: setContractsRegister(address)
           handler: setContractsRegister
       file: ./src/addressProvider.ts
-###################################
-# CreditAccounts
-###################################
-  - kind: ethereum/contract
-    name: AccountFactory
-    network: kovan
-    source:
-      abi: AccountFactory
-      startBlock: 20000000
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - AccountFactory
-      abis:
-        - name: AccountFactory
-          file: ./abis/accountFactory.json
-      eventHandlers:
-        - event: NewCreditAccount(indexed address)
-          handler: newCreditAccountContract
-      file: ./src/accountFactory.ts
-  - kind: ethereum/contract
-    name: CreditAccount
-    network: kovan
-    source:
-      abi: CreditAccount
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - CreditAccount
-      abis:
-        - name: CreditAccount
-          file: ./abis/creditAccount.json
-      callHandlers:
-        - function: updateParameters(uint256,uint256)
-          handler: updateParameters
-      file: ./src/creditAccount.ts
+  # - kind: ethereum/contract
+  #   name: CreditAccount
+  #   network: kovan
+  #   source:
+  #     abi: CreditAccount
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.5
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - CreditAccount
+  #     abis:
+  #       - name: CreditAccount
+  #         file: ./abis/creditAccount.json
+  #     callHandlers:
+  #       - function: updateParameters(uint256,uint256)
+  #         handler: updateParameters
+  #     file: ./src/creditAccount.ts
+
+
+templates:
 ###################################
 # CreditRegister and pools
 ###################################
+  - kind: ethereum/contract
+    name: PoolService
+    network: kovan
+    source:
+      abi: PoolService
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PoolService
+      abis:
+        - name: PoolService
+          file: ./abis/poolService.json
+      eventHandlers:
+        - event: AddLiquidity(indexed address,indexed address,uint256,uint256)
+          handler: addLiquidity
+        - event: RemoveLiquidity(indexed address,indexed address,uint256)
+          handler: removeLiquidity
+        # - event: BorrowForbidden(indexed address)
+        #   handler: borrow
+        # - event: Repay(indexed address,uint256,uint256,uint256)
+        #   handler: repay
+        - event: BorrowForbidden(indexed address)
+          handler: borrowForbidden
+        - event: NewExpectedLiquidityLimit(uint256)
+          handler: newExpectedLiqidityLimit
+      file: ./src/poolService.ts
   - kind: ethereum/contract
     name: ContractsRegister
     network: kovan
@@ -88,33 +97,26 @@ dataSources:
           handler: newPool
       file: ./src/contractsRegister.ts
   - kind: ethereum/contract
-    name: PoolService
+    name: AccountFactory
     network: kovan
     source:
-      abi: PoolService
+      abi: AccountFactory
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - PoolService
+        - AccountFactory
       abis:
-        - name: PoolService
-          file: ./abis/poolService.json
+        - name: AccountFactory
+          file: ./abis/accountFactory.json
       eventHandlers:
-        - event: AddLiquidity(indexed address,indexed address,uint256,uint256)
-          handler: addLiquidity
-        - event: RemoveLiquidity(indexed address,indexed address,uint256)
-          handler: removeLiquidity
-        - event: BorrowForbidden(indexed address)
-          handler: borrow
-        - event: Repay(indexed address,uint256,uint256,uint256)
-          handler: repay
-        - event: BorrowForbidden(indexed address)
-          handler: borrowForbidden
-        - event: NewExpectedLiquidityLimit(uint256)
-          handler: newExpectedLiqidityLimit
-      file: ./src/poolService.ts
+        - event: NewCreditAccount(indexed address)
+          handler: newCreditAccountContract
+      file: ./src/accountFactory.ts
+###################################
+# CreditManager
+###################################
   - kind: ethereum/contract
     name: CreditManager
     network: kovan
@@ -136,4 +138,16 @@ dataSources:
           handler: closeCreditAccount
         - event: LiquidateCreditAccount(indexed address,indexed address,uint256)
           handler: liquidateCreditAccount
+        - event: IncreaseBorrowedAmount(indexed address,uint256)
+          handler: increaseBorrowedAmount
+        - event: NewParameters(uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: setParameters
+        - event: TransferAccount(indexed address,indexed address)
+          handler: transferAccount
+        - event: TransferAccount(address,address)
+          handler: transferAccount1
+        - event: AddCollateral(indexed address,indexed address,uint256)
+          handler: addCollateral
+        - event: RepayCreditAccount(indexed address,indexed address)
+          handler: repayCreditAccount
       file: ./src/creditManager.ts

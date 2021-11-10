@@ -3,19 +3,18 @@ import {
   SetAccountFactoryCall,
   SetContractsRegisterCall
 } from "../generated/AddressProvider/AddressProvider"
-import { AccountFactory, ContractsRegister } from '../generated/schema'
+import { AccountFactory, ContractsRegister } from '../generated/templates'
+import { AccountFactory as AF, ContractsRegister as CR} from '../generated/schema'
 
 export function setAccountFactory(call: SetAccountFactoryCall): void {
-  let id = call.transaction.hash.toHex()
-  let af = new AccountFactory(id)
-  af.address = call.inputs._address
+  AccountFactory.create(call.inputs._address)
+  let af = new AF(call.inputs._address.toHexString())
   af.save()
 }
 
 export function setContractsRegister(call: SetContractsRegisterCall): void {
-  let id = call.transaction.hash.toHex()
-  let cr = new ContractsRegister(id)
-  cr.address = call.inputs._address
+  ContractsRegister.create(call.inputs._address)
+  let cr = new CR(call.inputs._address.toHexString())
   cr.save()
 }
 

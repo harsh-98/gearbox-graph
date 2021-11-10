@@ -1,7 +1,7 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
   UpdateParametersCall,
-} from "../generated/CreditAccount/CreditAccount"
+} from "../generated/templates/CreditAccount/CreditAccount"
 
 export function createAccountFactory(call: UpdateParametersCall): void {
 //   call.

@@ -1,7 +1,9 @@
 # CreditRegister and pools
 type ContractsRegister @entity {
   id: ID!
-  address: Bytes! # address
+}
+type AddressProvider @entity {
+    id: ID!
 }
 type Pool @entity {
   id: ID!
@@ -13,8 +15,14 @@ type Pool @entity {
 type CreditManager @entity {
   id: ID!
   pool: Pool
+  minAmount: BigInt
+  maxAmount: BigInt
+  maxLeverage: BigInt
+  feeSuccess: BigInt
+  feeInterest: BigInt
+  feeLiquidation: BigInt
+  liquidationDiscount: BigInt
 }
-
 
 # CreditAccounts
 type AccountFactory @entity {
@@ -22,7 +30,11 @@ type AccountFactory @entity {
   address: Bytes! # address
 }
 
-type CreditAccountDetails @entity {
+type CreditAccountMap @entity {
+  id: ID!
+  creditAccount: Bytes!
+}
+type CreditAccountIndex @entity {
   id: ID!
   index: BigInt!
 }
@@ -31,24 +43,43 @@ type CreditAccount @entity {
   id: ID!
   account: Bytes! # address
   owner: Bytes! # address
-  takeBlock: BigInt
-  returnBlock: BigInt
-  cumulativeIndexAtOpen: BigInt
   creditManager: CreditManager
+
+  openBlock: BigInt
+  openHash: Bytes
+  closeBlock: BigInt
+  closeHash: Bytes
+
+  collateral: BigInt
+  borrowAmount: BigInt
+  # on close
+  withDrawnTo: Bytes
+  remainingFund: BigInt
+  # liquidate
+  liquidator: Bytes
 }
 
-type UserPoolAction @entity {
-  id: ID!
-  user: Bytes! 
-  pool: Pool!
-  Liquidity: BigInt
-}
+#type Liquidate @entity {
+  #id: ID!
+  #account: CreditAccount!
+  #remainingFund: BigInt!
+  #liquidator: Bytes!
+  #liqBlock: BigInt
+  #liqHash: Bytes
+#}
 
-type CreditAccountAndManagerBorrow @entity {
-  id: ID!
-  creditAccount: CreditAccount!
-  creditManager: CreditManager!
-  borrowedAmount: BigInt
-  profit: BigInt 
-  loss: BigInt
-}
+#type UserPoolAction @entity {
+  #id: ID!
+  #user: Bytes! 
+  #pool: Pool!
+  #Liquidity: BigInt
+#}
+
+#type CreditAccountAndManagerBorrow @entity {
+  #id: ID!
+  #creditAccount: CreditAccount!
+  #creditManager: CreditManager!
+  #borrowedAmount: BigInt
+  #profit: BigInt 
+  #loss: BigInt
+#}
