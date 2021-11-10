@@ -1,0 +1,10 @@
+{
+  creditAccounts(where: {account: "0x5c087a72954f0ddafd27268b0d3e690bb3c05070"}){
+    id
+    owner
+    
+  }
+  creditAccountIndexes(where:{id: "0x5c087a72954f0ddafd27268b0d3e690bb3c05070"}){
+    index
+  }
+}

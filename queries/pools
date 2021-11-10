@@ -1,0 +1,23 @@
+fragment tokenFields on ERC20Token {
+    id
+    symbol
+    decimal
+}
+{
+  pools {
+    id
+    creditManagers {
+      id
+    }
+    availableLiquidity
+    underlyingToken {
+      ...tokenFields
+    }
+    dieselToken {
+      ...tokenFields
+    }
+    availableLiquidity
+    expectedLiquidityLimit
+    expectedLiquidity
+  }
+}
