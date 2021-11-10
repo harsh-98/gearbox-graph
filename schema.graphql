@@ -8,9 +8,12 @@ type AddressProvider @entity {
 type Pool @entity {
   id: ID!
   expectedLiquidityLimit: BigInt
-  liquidity: BigInt
+  expectedLiquidity: BigInt!
+  availableLiquidity: BigInt!
   borrowForbidden: [Bytes!]
   creditManagers: [CreditManager!] @derivedFrom(field: "pool")
+  dieselToken: ERC20Token
+  underlyingToken: ERC20Token
 }
 type CreditManager @entity {
   id: ID!
@@ -23,7 +26,11 @@ type CreditManager @entity {
   feeLiquidation: BigInt
   liquidationDiscount: BigInt
 }
-
+type ERC20Token @entity {
+  id: ID!
+  symbol: String
+  decimal: Int
+}
 # CreditAccounts
 type AccountFactory @entity {
   id: ID!
@@ -36,7 +43,7 @@ type CreditAccountMap @entity {
 }
 type CreditAccountIndex @entity {
   id: ID!
-  index: BigInt!
+  index: Int!
 }
 
 type CreditAccount @entity {

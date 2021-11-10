@@ -97,6 +97,24 @@ templates:
           handler: newPool
       file: ./src/contractsRegister.ts
   - kind: ethereum/contract
+    name: ERC20
+    network: kovan
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ERC20
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: newPool
+      file: ./src/ERC20.ts
+  - kind: ethereum/contract
     name: AccountFactory
     network: kovan
     source:

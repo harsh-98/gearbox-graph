@@ -29,7 +29,7 @@ function incrementCreditAccountIndex(addr: string): string {
         caDetails = new CreditAccountIndex(addr)
         // caDetails.index = new BigInt(0)
     } 
-    caDetails.index = caDetails.index.plus(BigInt.fromI32(1));
+    caDetails.index = caDetails.index + 1;
     caDetails.save()
     return `${addr}_${caDetails.index}`
 }
@@ -137,7 +137,7 @@ export function addCollateral(event: AddCollateral): void {
     // let ca = CreditAccount.load(caAddrStr)!;
     // ca.collateral = ca.collateral.plus(event.params.value); //FIXME
     // ca.save()
-    //SUGGESTION: if user can directly send funds to creditAccount , this value is not corrected
+    //NOTE: if user can directly send funds to creditAccount , this value is not corrected
 }
 export function transferAccount(event: TransferAccount): void {
     let caAddr = getCreditAccountAddr(event.address, event.params.oldOwner);
