@@ -1,0 +1,38 @@
+fragment tokenFields on ERC20Token {
+    id
+    symbol
+    decimal
+}
+fragment fields on CreditAccount {
+  id
+  owner
+  account
+  openBlock
+  openHash
+  closeBlock
+  closeHash
+  withDrawnTo
+  liquidator
+  collateral
+  borrowAmount
+  remainingFund
+  creditManager {
+    id
+    pool {
+      expectedLiquidity
+      availableLiquidity
+      underlyingToken {
+        ...tokenFields
+      }
+      dieselToken {
+        ...tokenFields
+      }
+    }
+  }
+}
+
+{
+  creditAccounts(where: {closeBlock_not: null, liquidator_not: null}, orderBy: openBlock) {
+    ...fields
+  }
+}

@@ -1,0 +1,8 @@
+{
+  creditAccounts(orderBy: openBlock, where: {owner: ""}) {
+    owner
+    account
+    openBlock
+    closeBlock
+  }
+}
