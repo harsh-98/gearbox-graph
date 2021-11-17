@@ -8,20 +8,11 @@ import {
     NewCreditManagerConnected
 } from "../generated/templates/PoolService/PoolService"
 import {Pool, CreditManager,ERC20Token} from '../generated/schema'
-import { Bytes,log, Address } from '@graphprotocol/graph-ts'
+import { Bytes } from '@graphprotocol/graph-ts'
 import { PoolService } from "../generated/templates/PoolService/PoolService";
-import { ERC20 } from "../generated/templates/ERC20/ERC20";
+import { saveToken } from "./utils";
 
-// Update liquidity of liquidity provider and pool
-//NOTE: Byte to Address as function arg, will problem with ERC20.bind(BYtes)
-//NOTE: return type Byte when assigned to variable is fine
-function saveToken(addr: Address): void {
-    let t = new ERC20Token(addr.toHexString());
-    let erc20 = ERC20.bind(addr)
-    t.symbol = erc20.symbol()
-    t.decimal = erc20.decimals()
-    t.save()
-}
+
 export function connectCreditManager(event: NewCreditManagerConnected): void {
     let cm = CreditManager.load(event.params.creditManager.toHexString())!;
     if(cm.pool === null) {

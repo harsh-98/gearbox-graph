@@ -97,6 +97,12 @@ templates:
       abis:
         - name: ContractsRegister
           file: ./abis/contractsRegister.json
+        - name: CreditManager
+          file: ./abis/creditManager.json
+        - name: CreditFilter
+          file: ./abis/creditFilter.json
+        - name: ERC20
+          file: ./abis/erc20.json
       eventHandlers:
         - event: NewCreditManagerAdded(indexed address)
           handler: newCreditManager
@@ -139,6 +145,32 @@ templates:
         - event: NewCreditAccount(indexed address)
           handler: newCreditAccountContract
       file: ./src/accountFactory.ts
+  - kind: ethereum/contract
+    name: CreditFilter
+    network: kovan
+    source:
+      abi: CreditFilter
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CreditFilter
+      abis:
+        - name: CreditFilter
+          file: ./abis/creditFilter.json
+        - name: ERC20
+          file: ./abis/erc20.json
+      eventHandlers:
+        - event: ContractAllowed(indexed address,indexed address)
+          handler: contractAllowed
+        - event: ContractForbidden(indexed address)
+          handler: contractForbidden
+        - event: NewFastCheckParameters(uint256,uint256)
+          handler: faskCheckParameters
+        - event: TokenAllowed(indexed address,uint256)
+          handler: tokenAllowed
+      file: ./src/creditFilter.ts
 ###################################
 # CreditManager
 ###################################
@@ -156,6 +188,8 @@ templates:
       abis:
         - name: CreditManager
           file: ./abis/creditManager.json
+        - name: CreditFilter
+          file: ./abis/creditFilter.json
       eventHandlers:
         - event: OpenCreditAccount(indexed address,indexed address,indexed address,uint256,uint256,uint256)
           handler: openCreditAccount
@@ -175,4 +209,6 @@ templates:
           handler: addCollateral
         - event: RepayCreditAccount(indexed address,indexed address)
           handler: repayCreditAccount
+        - event: ExecuteOrder(indexed address,indexed address)
+          handler: executeOrder
       file: ./src/creditManager.ts

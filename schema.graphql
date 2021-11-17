@@ -25,6 +25,19 @@ type CreditManager @entity {
   feeInterest: BigInt
   feeLiquidation: BigInt
   liquidationDiscount: BigInt
+  creditFilter: CreditFilter
+}
+type CreditFilter @entity {
+  id: ID!
+  allowedTokens: [CreditFilterTokenLiquidityMap!]!
+  allowedContracts: [Bytes!]!
+  fastCheckDelay: BigInt
+  chiThreshold: BigInt
+}
+type CreditFilterTokenLiquidityMap @entity {
+  id: ID!
+  token: ERC20Token
+  liquidityLimit: BigInt
 }
 type ERC20Token @entity {
   id: ID!
@@ -64,6 +77,7 @@ type CreditAccount @entity {
   remainingFund: BigInt
   # liquidate
   liquidator: Bytes
+  hf: BigInt
 }
 
 #### Not Used ####

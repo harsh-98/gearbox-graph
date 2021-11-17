@@ -3,16 +3,16 @@ import {
   OpenCreditAccount,
   CloseCreditAccount,
   LiquidateCreditAccount,
-  CreditManager as CreditManagerContract,
   NewParameters,
   IncreaseBorrowedAmount,
   TransferAccount1,
   TransferAccount,
   AddCollateral,
-  RepayCreditAccount
+  RepayCreditAccount,
+  ExecuteOrder
 } from "../generated/templates/CreditManager/CreditManager"
 import {CreditAccount,CreditManager,  CreditAccountMap, CreditAccountIndex} from '../generated/schema'
-
+import {CreditFilter} from "../generated/templates/CreditFilter/CreditFilter"
 import { Address ,store,log, Bytes} from '@graphprotocol/graph-ts'
 
 //
@@ -44,15 +44,21 @@ function setCreditAccountAddr(cm: Address, borrower: Address,ca: Bytes): void {
     caMap.creditAccount =  ca
     caMap.save()
 }
-function getCreditAccountAddr(cm: Address, borrower: Address): Bytes {
+function getCreditAccountAddr(cm: Address, borrower: Address): Address {
     let id = `${cm.toHexString()}_${borrower.toHexString()}`
     let caMap = CreditAccountMap.load(id);
     if(caMap == null) {
         log.error('No credit Account for id: {} ', [id]);
     }
-    return caMap!.creditAccount
+    return Address.fromString(caMap!.creditAccount.toHexString())
 }
-
+function getHF(cmAddr: Address, caAddr: Address): BigInt {
+    let cm = CreditManager.load(cmAddr.toHexString())!;
+    //NOTE: The entity referred with field in another entity as string will require Address.fromString
+    let cf = CreditFilter.bind(Address.fromString(cm.creditFilter!));
+    let hf = cf.calcCreditAccountHealthFactor(caAddr);
+    return hf
+}
 export function openCreditAccount(event: OpenCreditAccount): void {
     let caAddr = event.params.creditAccount;
     // creditaccount to latest used index of creditaccount
@@ -68,6 +74,7 @@ export function openCreditAccount(event: OpenCreditAccount): void {
     ca.creditManager = event.address.toHexString();
     ca.borrowAmount = event.params.borrowAmount;
     ca.collateral = event.params.amount;
+    ca.hf = getHF(event.address, caAddr);
     ca.save()
 }
 
@@ -102,6 +109,7 @@ export function liquidateCreditAccount(event: LiquidateCreditAccount): void {
     ca.remainingFund = event.params.remainingFunds;
     ca.liquidator = event.params.liquidator;
     ca.withDrawnTo = event.params.owner;
+    ca.hf = new BigInt(0);
     ca.save()
     // remove mapping
     store.remove('CreditAccountMap', `${event.address.toHexString()}_${event.params.owner.toHexString()}`);
@@ -125,11 +133,12 @@ export function setParameters(event: NewParameters): void {
 }
 export function increaseBorrowedAmount(event: IncreaseBorrowedAmount): void {
     // get creditAccount
-    let caAddrStr = getCreditAccountAddr(event.address, event.params.borrower).toHexString();
-    let id = getCreditAccountID(caAddrStr);
+    let caAddr = getCreditAccountAddr(event.address, event.params.borrower);
+    let id = getCreditAccountID(caAddr.toHexString());
     let ca = CreditAccount.load(id)!;
     // set properties
     ca.borrowAmount = ca.borrowAmount!.plus(event.params.amount);
+    ca.hf = getHF(event.address, caAddr)
     ca.save()
 }
 export function addCollateral(event: AddCollateral): void {
@@ -149,6 +158,7 @@ export function transferAccount(event: TransferAccount): void {
     let id = getCreditAccountID(caAddr.toHexString());
     let ca = CreditAccount.load(id)!;
     ca.owner = event.params.newOwner;
+    ca.hf = getHF(event.address, caAddr);
     ca.save()
 }
 export function transferAccount1(event: TransferAccount1): void {
@@ -161,6 +171,7 @@ export function transferAccount1(event: TransferAccount1): void {
     let id = getCreditAccountID(caAddr.toHexString());
     let ca = CreditAccount.load(id)!;
     ca.owner = event.params.newOwner;
+    ca.hf = getHF(event.address, caAddr);
     ca.save()
 }
 
@@ -175,5 +186,16 @@ export function repayCreditAccount(event: RepayCreditAccount): void {
     ca.closeHash = event.transaction.hash;
     ca.borrowAmount =  new BigInt(0);
     ca.collateral = new BigInt(0);
+    ca.hf = new BigInt(0);
+    ca.save()
+}
+
+export function executeOrder(event: ExecuteOrder): void {
+    // get creditAccount
+    let caAddr = getCreditAccountAddr(event.address, event.params.borrower);
+    let id = getCreditAccountID(caAddr.toHexString());
+    let ca = CreditAccount.load(id)!;
+    // set properties
+    ca.hf = getHF(event.address, caAddr);
     ca.save()
 }
